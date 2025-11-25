@@ -102,12 +102,43 @@ class CopyTrader:
             print(f"\n📥 Processing transaction from master wallet...")
             print(f"   Transaction data received: {type(transaction_data)}")
             
+            # DEBUG: Print transaction structure
+            if isinstance(transaction_data, dict):
+                print(f"   Transaction keys: {list(transaction_data.keys())}")
+                if 'transaction' in transaction_data:
+                    tx_obj = transaction_data['transaction']
+                    print(f"   Transaction object type: {type(tx_obj)}")
+                    if hasattr(tx_obj, 'transaction'):
+                        print(f"   Has nested transaction: {type(tx_obj.transaction)}")
+                    if hasattr(tx_obj, 'meta'):
+                        print(f"   Has meta: {type(tx_obj.meta)}")
+                        meta = tx_obj.meta
+                        if hasattr(meta, 'err'):
+                            if meta.err:
+                                print(f"   ⚠️ Transaction has error: {meta.err}")
+                                return
+                        if hasattr(meta, 'preTokenBalances'):
+                            print(f"   Has preTokenBalances: {len(meta.preTokenBalances) if meta.preTokenBalances else 0}")
+                        if hasattr(meta, 'postTokenBalances'):
+                            print(f"   Has postTokenBalances: {len(meta.postTokenBalances) if meta.postTokenBalances else 0}")
+            
             trade_info = self._extract_trade_info(transaction_data)
             
             if not trade_info:
                 print("⚠️ No trade info extracted from transaction")
                 print("   This might not be a swap/trade transaction")
                 print("   Or transaction format is not recognized")
+                print("   DEBUG: Trying to extract manually...")
+                
+                # Try manual extraction for debugging
+                if isinstance(transaction_data, dict) and 'transaction' in transaction_data:
+                    tx_obj = transaction_data['transaction']
+                    if hasattr(tx_obj, 'meta'):
+                        meta = tx_obj.meta
+                        if hasattr(meta, 'err') and meta.err:
+                            print(f"   ❌ Transaction failed: {meta.err}")
+                            return
+                        print(f"   Meta available, checking balances...")
                 return
             
             # Get master wallet amount
@@ -188,13 +219,25 @@ class CopyTrader:
                 print("⚠️ No transaction data provided")
                 return None
             
-            # Debug: Print transaction data structure (only first time or on error)
-            if not hasattr(self, '_debug_printed'):
-                print(f"🔍 DEBUG: Transaction data structure:")
-                print(f"   Type: {type(transaction_data)}")
-                if isinstance(transaction_data, dict):
-                    print(f"   Keys: {list(transaction_data.keys())}")
-                self._debug_printed = True
+            # Debug: Print transaction data structure (always for now)
+            print(f"🔍 DEBUG: Transaction data structure:")
+            print(f"   Type: {type(transaction_data)}")
+            if isinstance(transaction_data, dict):
+                print(f"   Keys: {list(transaction_data.keys())}")
+                if 'transaction' in transaction_data:
+                    tx_obj = transaction_data['transaction']
+                    print(f"   Transaction object: {type(tx_obj)}")
+                    if hasattr(tx_obj, 'transaction'):
+                        print(f"   Nested transaction: {type(tx_obj.transaction)}")
+                    if hasattr(tx_obj, 'meta'):
+                        meta = tx_obj.meta
+                        print(f"   Meta: {type(meta)}")
+                        if hasattr(meta, 'err'):
+                            print(f"   Error: {meta.err}")
+                        if hasattr(meta, 'preTokenBalances'):
+                            print(f"   PreTokenBalances count: {len(meta.preTokenBalances) if meta.preTokenBalances else 0}")
+                        if hasattr(meta, 'postTokenBalances'):
+                            print(f"   PostTokenBalances count: {len(meta.postTokenBalances) if meta.postTokenBalances else 0}")
             
             transaction = None
             tx_bytes = None
@@ -253,15 +296,36 @@ class CopyTrader:
             # Fallback: Try to extract from RPC TransactionInfo message/instructions
             if isinstance(transaction_data, dict) and 'transaction' in transaction_data:
                 tx_obj = transaction_data['transaction']
+                print(f"   DEBUG: tx_obj type: {type(tx_obj)}")
+                
+                # RPC TransactionInfo format: tx_obj.transaction.message
                 if hasattr(tx_obj, 'transaction'):
                     rpc_tx = tx_obj.transaction
+                    print(f"   DEBUG: rpc_tx type: {type(rpc_tx)}")
                     if hasattr(rpc_tx, 'message'):
                         message = rpc_tx.message
+                        print(f"   DEBUG: message type: {type(message)}")
                         # Try to parse instructions from RPC message
-                        return self._parse_rpc_transaction(message, transaction_data)
+                        result = self._parse_rpc_transaction(message, transaction_data)
+                        if result:
+                            print(f"   ✓ Trade info extracted from RPC message")
+                            return result
+                        else:
+                            print(f"   ⚠️ Failed to parse from RPC message")
+                
+                # Try direct extraction from transaction_data
+                print(f"   DEBUG: Trying direct extraction...")
+                result = self._extract_real_trade_data(transaction_data, [], [])
+                if result:
+                    print(f"   ✓ Trade info extracted directly")
+                    return result
             
             # Final fallback: Try to detect common swap patterns
-            return self._detect_swap_from_data(transaction_data)
+            print(f"   DEBUG: Trying fallback detection...")
+            result = self._detect_swap_from_data(transaction_data)
+            if result:
+                print(f"   ✓ Trade info extracted from fallback")
+            return result
                 
         except Exception as e:
             print(f"⚠️ Error extracting trade info: {e}")
@@ -438,13 +502,30 @@ class CopyTrader:
             meta = None
             if 'transaction' in transaction_data:
                 tx_obj = transaction_data['transaction']
-                if hasattr(tx_obj, 'meta'):
+                print(f"   DEBUG: tx_obj type in _extract_real_trade_data: {type(tx_obj)}")
+                
+                # Handle EncodedConfirmedTransactionWithStatusMeta format
+                if hasattr(tx_obj, 'transaction'):
+                    # Nested transaction (EncodedTransactionWithStatusMeta)
+                    nested_tx = tx_obj.transaction
+                    print(f"   DEBUG: nested_tx type: {type(nested_tx)}")
+                    if hasattr(nested_tx, 'meta'):
+                        meta = nested_tx.meta
+                        print(f"   DEBUG: Found meta in nested_tx: {type(meta)}")
+                elif hasattr(tx_obj, 'meta'):
                     meta = tx_obj.meta
+                    print(f"   DEBUG: Found meta in tx_obj: {type(meta)}")
                 elif isinstance(tx_obj, dict) and 'meta' in tx_obj:
                     meta = tx_obj['meta']
+                    print(f"   DEBUG: Found meta in dict: {type(meta)}")
             
             if not meta:
+                print(f"   ⚠️ No metadata found in transaction")
+                print(f"   DEBUG: Available attributes: {dir(tx_obj) if 'tx_obj' in locals() else 'N/A'}")
                 return None
+            
+            print(f"   DEBUG: Meta type: {type(meta)}")
+            print(f"   DEBUG: Meta attributes: {[attr for attr in dir(meta) if not attr.startswith('_')][:10]}")
             
             # Extract token balance changes (MOST RELIABLE for swap detection)
             pre_token_balances = None
@@ -452,17 +533,23 @@ class CopyTrader:
             
             if hasattr(meta, 'pre_token_balances'):
                 pre_token_balances = meta.pre_token_balances
+                print(f"   DEBUG: Found pre_token_balances (snake_case): {len(pre_token_balances) if pre_token_balances else 0}")
             elif hasattr(meta, 'preTokenBalances'):
                 pre_token_balances = meta.preTokenBalances
+                print(f"   DEBUG: Found preTokenBalances (camelCase): {len(pre_token_balances) if pre_token_balances else 0}")
             elif isinstance(meta, dict):
                 pre_token_balances = meta.get('preTokenBalances') or meta.get('pre_token_balances')
+                print(f"   DEBUG: Found preTokenBalances (dict): {len(pre_token_balances) if pre_token_balances else 0}")
             
             if hasattr(meta, 'post_token_balances'):
                 post_token_balances = meta.post_token_balances
+                print(f"   DEBUG: Found post_token_balances (snake_case): {len(post_token_balances) if post_token_balances else 0}")
             elif hasattr(meta, 'postTokenBalances'):
                 post_token_balances = meta.postTokenBalances
+                print(f"   DEBUG: Found postTokenBalances (camelCase): {len(post_token_balances) if post_token_balances else 0}")
             elif isinstance(meta, dict):
                 post_token_balances = meta.get('postTokenBalances') or meta.get('post_token_balances')
+                print(f"   DEBUG: Found postTokenBalances (dict): {len(post_token_balances) if post_token_balances else 0}")
             
             # Extract SOL balance changes
             pre_balances = None
@@ -562,30 +649,70 @@ class CopyTrader:
                         if abs(change) > abs(sol_balance_change):
                             sol_balance_change = change
                 
-                # Determine trade direction
+                # Determine trade direction from SOL balance change
                 # If SOL decreased and token increased = BUY (SOL -> Token)
                 # If token decreased and SOL increased = SELL (Token -> SOL)
-                if sol_balance_change < 0:
-                    # SOL spent = BUY
-                    is_buy = True
-                    if not token_in_mint:
-                        token_in_mint = sol_mint
-                        amount_in = abs(sol_balance_change) / LAMPORTS_PER_SOL
-                    if token_in_mint == sol_mint and not token_out_mint:
-                        # Need to find token_out from instruction accounts
-                        token_out_mint = None
-                else:
-                    # SOL received = SELL
-                    is_buy = False
-                    if not token_out_mint:
-                        token_out_mint = sol_mint
-                        amount_out = abs(sol_balance_change) / LAMPORTS_PER_SOL
-                    if token_out_mint == sol_mint and not token_in_mint:
-                        # Need to find token_in from instruction accounts
-                        token_in_mint = None
+                sol_amount = 0.0
+                if pre_balances and post_balances and len(pre_balances) == len(post_balances):
+                    # Find master wallet's SOL balance change (usually first account)
+                    if len(pre_balances) > 0:
+                        sol_change_lamports = post_balances[0] - pre_balances[0]
+                        sol_amount = abs(sol_change_lamports) / LAMPORTS_PER_SOL
+                        print(f"   DEBUG: SOL balance change: {sol_change_lamports} lamports = {sol_amount} SOL")
                 
-                # If we have valid mints, return trade info
-                if token_in_mint and token_out_mint:
+                if sol_balance_change < 0:
+                    # SOL spent = BUY (SOL -> Token)
+                    is_buy = True
+                    token_in_mint = sol_mint
+                    amount_in = sol_amount if sol_amount > 0 else (abs(sol_balance_change) / LAMPORTS_PER_SOL)
+                    # Find token_out from token balances
+                    if not token_out_mint and post_token_map:
+                        # Get first non-SOL token that increased
+                        for account_idx, post_data in post_token_map.items():
+                            pre_data = pre_token_map.get(account_idx, {'amount': 0.0})
+                            if post_data['mint'] != sol_mint and post_data['amount'] > pre_data.get('amount', 0.0):
+                                token_out_mint = post_data['mint']
+                                break
+                else:
+                    # SOL received = SELL (Token -> SOL)
+                    is_buy = False
+                    token_out_mint = sol_mint
+                    amount_out = sol_amount if sol_amount > 0 else (abs(sol_balance_change) / LAMPORTS_PER_SOL)
+                    # Find token_in from token balances - MUST find the token being sold
+                    if pre_token_map:
+                        # Get first non-SOL token that decreased (token being sold)
+                        for account_idx, pre_data in pre_token_map.items():
+                            post_data = post_token_map.get(account_idx, {'amount': 0.0})
+                            mint = pre_data.get('mint', '')
+                            if mint and mint != sol_mint:
+                                pre_amt = pre_data.get('amount', 0.0)
+                                post_amt = post_data.get('amount', 0.0)
+                                if pre_amt > post_amt and (pre_amt - post_amt) > 0.0001:  # Significant decrease
+                                    token_in_mint = mint
+                                    amount_in = pre_amt - post_amt
+                                    print(f"   DEBUG: SELL detected - Token: {mint[:16]}..., Amount: {amount_in}")
+                                    break
+                    
+                    # If still no token_in found, try to get from token balances that decreased
+                    if not token_in_mint:
+                        # Check all token balance changes again
+                        for account_idx, post_data in post_token_map.items():
+                            pre_data = pre_token_map.get(account_idx, {'amount': 0.0})
+                            balance_change = post_data.get('amount', 0.0) - pre_data.get('amount', 0.0)
+                            mint = post_data.get('mint', '')
+                            if mint and mint != sol_mint and balance_change < -0.0001:  # Token decreased
+                                token_in_mint = mint
+                                amount_in = abs(balance_change)
+                                print(f"   DEBUG: SELL detected (fallback) - Token: {mint[:16]}..., Amount: {amount_in}")
+                                break
+                
+                # Validate: token_in and token_out must be different
+                if token_in_mint and token_out_mint and token_in_mint == token_out_mint:
+                    print(f"   ⚠️ Same token in/out detected: {token_in_mint}, skipping...")
+                    return None
+                
+                # If we have valid mints and amounts, return trade info
+                if token_in_mint and token_out_mint and amount_in > 0:
                     # Normalize: token_in should be what we're spending, token_out what we're getting
                     if is_buy:
                         # BUY: Spending SOL, getting Token
@@ -847,7 +974,7 @@ class CopyTrader:
                     master_amount=trade_info.get("master_amount", 0.0),
                     your_amount=amount
                 )
-                
+            
                 # Store active trade for duration tracking
                 self.active_trades[trade_id] = {
                     "start_time": trade_start_time,
@@ -857,7 +984,7 @@ class CopyTrader:
                 
                 return True
             else:
-                print("Transaction failed")
+                print("❌ Transaction failed")
                 return False
             
         except Exception as e:

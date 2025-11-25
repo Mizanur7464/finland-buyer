@@ -254,6 +254,7 @@ class YellowstoneGeyserClient:
         
         try:
             # Get initial signature to establish baseline
+            print(f"🔍 Checking wallet for existing transactions...")
             initial_sigs = await rpc_client.get_signatures_for_address(
                 pubkey,
                 limit=1,
@@ -261,12 +262,17 @@ class YellowstoneGeyserClient:
             )
             if initial_sigs.value and len(initial_sigs.value) > 0:
                 last_signature = initial_sigs.value[0].signature
-                print(f"✓ Initial transaction found: {last_signature}")
-                print(f"✓ Now monitoring for NEW transactions...")
-            else:
-                print(f"✓ No previous transactions found. Monitoring for first transaction...")
+                print(f"✓ Initial transaction found: {str(last_signature)[:32]}...")
+                print(f"✓ Now monitoring for NEW transactions only (will skip old transactions)")
                 print(f"   Master wallet: {account_address}")
-                print(f"   Will detect ANY new transaction from this wallet")
+                print(f"   Network: {Config.NETWORK}")
+            else:
+                print(f"⚠️ No previous transactions found on {Config.NETWORK} network")
+                print(f"   Master wallet: {account_address}")
+                print(f"   RPC endpoint: {Config.RPC_ENDPOINT}")
+                print(f"   💡 If master wallet trades on MAINNET, change NETWORK=mainnet in .env")
+                print(f"   💡 Will detect ANY new transaction from this wallet")
+                print(f"   ⏳ Monitoring started...")
             
             while self.is_connected:
                 try:
@@ -281,61 +287,179 @@ class YellowstoneGeyserClient:
                         commitment="confirmed"
                     )
                     
+                    # Debug output every 12 checks (1 minute)
+                    if check_count % 12 == 0:
+                        if signatures.value and len(signatures.value) > 0:
+                            latest_sig = signatures.value[0].signature
+                            print(f"   🔍 Latest signature: {str(latest_sig)[:32]}...")
+                            if last_signature:
+                                print(f"   🔍 Last processed: {str(last_signature)[:32]}...")
+                                if str(latest_sig) == str(last_signature):
+                                    print(f"   ✓ No new transactions (same signature)")
+                        else:
+                            print(f"   ⚠️ No transactions found for wallet: {account_address}")
+                            print(f"   💡 Check if wallet is on {Config.NETWORK} network")
+                            print(f"   💡 Current RPC: {Config.RPC_ENDPOINT}")
+                    
                     if signatures.value and len(signatures.value) > 0:
-                        current_sig = signatures.value[0].signature
+                        # Process all signatures from newest to oldest until we find last_signature
+                        new_signatures = []
                         
-                        # Check if this is a new transaction
-                        # If last_signature is None, this is the first transaction
-                        # If current_sig != last_signature, this is a new transaction
-                        is_new_transaction = False
-                        
-                        if not last_signature:
-                            # First transaction ever detected
-                            is_new_transaction = True
-                            print(f"\n🚨 FIRST TRANSACTION DETECTED!")
-                        elif current_sig != last_signature:
-                            # New transaction detected
-                            is_new_transaction = True
-                            print(f"\n🚨 NEW TRANSACTION DETECTED!")
-                        
-                        if is_new_transaction:
-                            print(f"   Signature: {current_sig}")
-                            print(f"   Previous: {last_signature if last_signature else 'None (first)'}")
+                        for sig_info in signatures.value:
+                            sig = sig_info.signature
+                            sig_str = str(sig)
                             
-                            # Get full transaction details
-                            try:
-                                tx_info = await rpc_client.get_transaction(
-                                    current_sig,
-                                    commitment="confirmed",
-                                    max_supported_transaction_version=0
-                                )
-                                
-                                if tx_info.value:
-                                    print(f"✓ Transaction details retrieved")
-                                    
-                                    # Call the callback with transaction data
-                                    await callback({
-                                        "type": "transaction",
-                                        "transaction": tx_info.value,
-                                        "signature": str(current_sig),
-                                        "account": account_address,
-                                        "update": tx_info.value
-                                    })
-                                else:
-                                    print(f"⚠️ Transaction info is None for signature: {current_sig}")
-                            except Exception as tx_error:
-                                print(f"⚠️ Error fetching transaction details: {tx_error}")
-                                import traceback
-                                traceback.print_exc()
+                            if not last_signature:
+                                # First transaction - process all
+                                new_signatures.append((sig, sig_str))
+                            elif sig_str != str(last_signature):
+                                # New transaction - add to list
+                                new_signatures.append((sig, sig_str))
+                            else:
+                                # Found last processed signature - stop here
+                                break
                         
-                        # Update last signature to the most recent one
-                        last_signature = current_sig
+                        # Process new signatures in reverse order (oldest first)
+                        if new_signatures:
+                            print(f"\n🚨 {len(new_signatures)} NEW TRANSACTION(S) DETECTED!")
+                            for idx, (sig, sig_str) in enumerate(reversed(new_signatures)):
+                                current_sig = sig
+                                print(f"   Processing signature {idx+1}/{len(new_signatures)}: {str(current_sig)[:32]}...")
+                                print(f"   Previous: {last_signature if last_signature else 'None (first)'}")
+                                
+                                # Rate limiting: Add delay between requests to avoid 429 errors
+                                if idx > 0:
+                                    delay = 1.0  # 1 second delay between requests
+                                    print(f"   ⏳ Rate limiting: waiting {delay}s before next request...")
+                                    await asyncio.sleep(delay)
+                                
+                                # Get full transaction details
+                                try:
+                                    print(f"   📥 Fetching transaction details...")
+                                    # Try without max_supported_transaction_version first (for compatibility)
+                                    tx_info = None
+                                    retry_count = 0
+                                    max_retries = 3
+                                    
+                                    while retry_count < max_retries:
+                                        try:
+                                            tx_info = await rpc_client.get_transaction(
+                                                current_sig,
+                                                commitment="confirmed",
+                                                max_supported_transaction_version=0
+                                            )
+                                            break  # Success
+                                        except Exception as e1:
+                                            error_str = str(e1)
+                                            # Check for rate limit error
+                                            if "429" in error_str or "Too Many Requests" in error_str:
+                                                retry_count += 1
+                                                if retry_count < max_retries:
+                                                    wait_time = 2 ** retry_count  # Exponential backoff: 2s, 4s, 8s
+                                                    print(f"   ⚠️ Rate limit hit (429), waiting {wait_time}s before retry {retry_count}/{max_retries}...")
+                                                    await asyncio.sleep(wait_time)
+                                                    continue
+                                                else:
+                                                    print(f"   ❌ Rate limit error after {max_retries} retries, skipping this transaction")
+                                                    break
+                                            else:
+                                                # Try without version parameter
+                                                print(f"   ⚠️ First attempt failed: {e1}, trying without version...")
+                                                try:
+                                                    tx_info = await rpc_client.get_transaction(
+                                                        current_sig,
+                                                        commitment="confirmed"
+                                                    )
+                                                    break  # Success
+                                                except Exception as e2:
+                                                    if "429" in str(e2) or "Too Many Requests" in str(e2):
+                                                        retry_count += 1
+                                                        if retry_count < max_retries:
+                                                            wait_time = 2 ** retry_count
+                                                            print(f"   ⚠️ Rate limit hit (429), waiting {wait_time}s before retry {retry_count}/{max_retries}...")
+                                                            await asyncio.sleep(wait_time)
+                                                            continue
+                                                        else:
+                                                            print(f"   ❌ Rate limit error after {max_retries} retries, skipping this transaction")
+                                                            break
+                                                    else:
+                                                        print(f"   ⚠️ Second attempt failed: {e2}")
+                                                        if retry_count < max_retries:
+                                                            retry_count += 1
+                                                            wait_time = 2 ** retry_count
+                                                            print(f"   ⚠️ Waiting {wait_time}s before retry {retry_count}/{max_retries}...")
+                                                            await asyncio.sleep(wait_time)
+                                                            continue
+                                                        else:
+                                                            raise e2
+                                    
+                                    if tx_info and tx_info.value:
+                                        print(f"✓ Transaction details retrieved")
+                                        print(f"   Transaction type: {type(tx_info.value)}")
+                                        
+                                        # Check if transaction has error
+                                        skip_transaction = False
+                                        if hasattr(tx_info.value, 'transaction'):
+                                            if hasattr(tx_info.value.transaction, 'meta'):
+                                                meta = tx_info.value.transaction.meta
+                                                if hasattr(meta, 'err') and meta.err:
+                                                    print(f"   ⚠️ Transaction has error: {meta.err}")
+                                                    print(f"   Skipping this transaction (failed)")
+                                                    skip_transaction = True
+                                        
+                                        if not skip_transaction:
+                                            # Call the callback with transaction data
+                                            print(f"   🔄 Calling callback to process transaction...")
+                                            try:
+                                                await callback({
+                                                    "type": "transaction",
+                                                    "transaction": tx_info.value,
+                                                    "signature": str(current_sig),
+                                                    "account": account_address,
+                                                    "update": tx_info.value
+                                                })
+                                                print(f"   ✅ Callback completed successfully")
+                                            except Exception as callback_error:
+                                                print(f"   ❌ Callback error: {callback_error}")
+                                                import traceback
+                                                traceback.print_exc()
+                                    elif tx_info is None:
+                                        print(f"⚠️ Transaction response is None for signature: {current_sig}")
+                                    else:
+                                        print(f"⚠️ Transaction info value is None for signature: {current_sig}")
+                                        print(f"   Response type: {type(tx_info)}")
+                                        if hasattr(tx_info, 'value'):
+                                            print(f"   Response.value type: {type(tx_info.value)}")
+                                except Exception as tx_error:
+                                    print(f"⚠️ Error fetching transaction details: {tx_error}")
+                                    import traceback
+                                    traceback.print_exc()
+                            
+                            # Update last signature to the most recent one (first in original list) - OUTSIDE loop
+                            if new_signatures:
+                                # Most recent is the first one in the original list (not reversed)
+                                last_signature = new_signatures[0][0]
+                                print(f"   ✓ Updated last_signature to: {str(last_signature)[:32]}...")
+                        elif signatures.value and len(signatures.value) > 0:
+                            # No new transactions, but update last_signature if it was None
+                            if not last_signature:
+                                last_signature = signatures.value[0].signature
+                                print(f"   ✓ Set baseline signature: {str(last_signature)[:32]}...")
+                    else:
+                        # No signatures at all - might be wrong network or wallet has no transactions
+                        if check_count == 1:
+                            print(f"   ⚠️ No transactions found for wallet: {account_address}")
+                            print(f"   💡 Make sure wallet is on {Config.NETWORK} network")
+                            print(f"   💡 Current RPC endpoint: {Config.RPC_ENDPOINT}")
                     
                     # Wait 5 seconds before next check
                     await asyncio.sleep(5)
                     
                 except Exception as e:
-                    print(f"⚠️ Polling error: {e}")
+                    error_msg = str(e) if e else "Unknown error"
+                    error_type = type(e).__name__
+                    if check_count % 12 == 0:  # Only print every minute to avoid spam
+                        print(f"⚠️ Polling error ({error_type}): {error_msg[:100]}")
                     await asyncio.sleep(5)
                     
         except asyncio.CancelledError:

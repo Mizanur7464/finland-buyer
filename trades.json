@@ -1,0 +1,535 @@
+{
+  "trades": [],
+  "errors": [],
+  "failed_trades": [
+    {
+      "timestamp": "2025-11-25T21:43:03.051453",
+      "reason": "Insufficient balance. Need 223726.10644639502 SOL, have 4.000000003 SOL",
+      "master_amount": 2215109.953863,
+      "trade_info": {
+        "token_in": "X8T8fW9nZa6hG9ou5kBABJg7zitQy88Yj2iVqjPpump",
+        "token_out": "X8T8fW9nZa6hG9ou5kBABJg7zitQy88Yj2iVqjPpump",
+        "amount_in": 221510.99538630003,
+        "amount_out": 2215109.9538630247,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 2215109.953863,
+        "your_amount": 221510.99538630003
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T21:43:03.051453",
+      "reason": "Trade execution failed",
+      "master_amount": 2215109.953863,
+      "trade_info": {
+        "token_in": "X8T8fW9nZa6hG9ou5kBABJg7zitQy88Yj2iVqjPpump",
+        "token_out": "X8T8fW9nZa6hG9ou5kBABJg7zitQy88Yj2iVqjPpump",
+        "amount_in": 221510.99538630003,
+        "amount_out": 2215109.9538630247,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 2215109.953863,
+        "your_amount": 221510.99538630003
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T21:45:41.133250",
+      "reason": "Insufficient balance. Need 154453.433868974 SOL, have 4.000000003 SOL",
+      "master_amount": 1529241.908542,
+      "trade_info": {
+        "token_in": "7vekytC8o6xgjgKic52GbFpneNWFrCHYaurco8owpump",
+        "token_out": "7vekytC8o6xgjgKic52GbFpneNWFrCHYaurco8owpump",
+        "amount_in": 152924.19085420002,
+        "amount_out": 1529241.9085419774,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 1529241.908542,
+        "your_amount": 152924.19085420002
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T21:45:41.133250",
+      "reason": "Trade execution failed",
+      "master_amount": 1529241.908542,
+      "trade_info": {
+        "token_in": "7vekytC8o6xgjgKic52GbFpneNWFrCHYaurco8owpump",
+        "token_out": "7vekytC8o6xgjgKic52GbFpneNWFrCHYaurco8owpump",
+        "amount_in": 152924.19085420002,
+        "amount_out": 1529241.9085419774,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 1529241.908542,
+        "your_amount": 152924.19085420002
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T21:46:17.159600",
+      "reason": "Insufficient balance. Need 120880.98874268107 SOL, have 4.000000003 SOL",
+      "master_amount": 1196841.4617470205,
+      "trade_info": {
+        "token_in": "HEne1vFG87d6TG7xJcGNSbW7wzgkeSzua27gxkBpump",
+        "token_out": "So11111111111111111111111111111111111111112",
+        "amount_in": 119684.14617470205,
+        "amount_out": 1.0691395999999855,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 1196841.4617470205,
+        "your_amount": 119684.14617470205
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T21:46:17.159600",
+      "reason": "Trade execution failed",
+      "master_amount": 1196841.4617470205,
+      "trade_info": {
+        "token_in": "HEne1vFG87d6TG7xJcGNSbW7wzgkeSzua27gxkBpump",
+        "token_out": "So11111111111111111111111111111111111111112",
+        "amount_in": 119684.14617470205,
+        "amount_out": 1.0691395999999855,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 1196841.4617470205,
+        "your_amount": 119684.14617470205
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T21:46:37.876526",
+      "reason": "Insufficient balance. Need 282459.369884175 SOL, have 4.000000003 SOL",
+      "master_amount": 2796627.413643,
+      "trade_info": {
+        "token_in": "EaX1w1JrWbc6utxA7oyMec9Rcwkuwvwic2oZZWFapump",
+        "token_out": "EaX1w1JrWbc6utxA7oyMec9Rcwkuwvwic2oZZWFapump",
+        "amount_in": 279662.7413643,
+        "amount_out": 2796627.4136430025,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 2796627.413643,
+        "your_amount": 279662.7413643
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T21:46:37.876526",
+      "reason": "Trade execution failed",
+      "master_amount": 2796627.413643,
+      "trade_info": {
+        "token_in": "EaX1w1JrWbc6utxA7oyMec9Rcwkuwvwic2oZZWFapump",
+        "token_out": "EaX1w1JrWbc6utxA7oyMec9Rcwkuwvwic2oZZWFapump",
+        "amount_in": 279662.7413643,
+        "amount_out": 2796627.4136430025,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 2796627.413643,
+        "your_amount": 279662.7413643
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T21:47:49.486382",
+      "reason": "Insufficient balance. Need 309086.521766426 SOL, have 4.000000003 SOL",
+      "master_amount": 3060262.580794,
+      "trade_info": {
+        "token_in": "B8SfsH1fPtmyRTHfhS8nWvBxE6t4aAawKb6Gv6ddpump",
+        "token_out": "B8SfsH1fPtmyRTHfhS8nWvBxE6t4aAawKb6Gv6ddpump",
+        "amount_in": 306026.2580794,
+        "amount_out": 3060262.580793977,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 3060262.580794,
+        "your_amount": 306026.2580794
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T21:47:49.486382",
+      "reason": "Trade execution failed",
+      "master_amount": 3060262.580794,
+      "trade_info": {
+        "token_in": "B8SfsH1fPtmyRTHfhS8nWvBxE6t4aAawKb6Gv6ddpump",
+        "token_out": "B8SfsH1fPtmyRTHfhS8nWvBxE6t4aAawKb6Gv6ddpump",
+        "amount_in": 306026.2580794,
+        "amount_out": 3060262.580793977,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 3060262.580794,
+        "your_amount": 306026.2580794
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T21:47:49.768362",
+      "reason": "Insufficient balance. Need 189357.47408214 SOL, have 4.000000003 SOL",
+      "master_amount": 1874826.465108,
+      "trade_info": {
+        "token_in": "EdGoCECeH7xtg6F6B9STvvVMYjFBvUkL4TrLPBq2W2j5",
+        "token_out": "EdGoCECeH7xtg6F6B9STvvVMYjFBvUkL4TrLPBq2W2j5",
+        "amount_in": 187482.6465108,
+        "amount_out": 1874826.4651080072,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 1874826.465108,
+        "your_amount": 187482.6465108
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T21:47:49.768362",
+      "reason": "Trade execution failed",
+      "master_amount": 1874826.465108,
+      "trade_info": {
+        "token_in": "EdGoCECeH7xtg6F6B9STvvVMYjFBvUkL4TrLPBq2W2j5",
+        "token_out": "EdGoCECeH7xtg6F6B9STvvVMYjFBvUkL4TrLPBq2W2j5",
+        "amount_in": 187482.6465108,
+        "amount_out": 1874826.4651080072,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 1874826.465108,
+        "your_amount": 187482.6465108
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T21:53:30.268451",
+      "reason": "Trade execution failed",
+      "master_amount": 0.59074306,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "7vekytC8o6xgjgKic52GbFpneNWFrCHYaurco8owpump",
+        "amount_in": 0.059074306,
+        "amount_out": 2017806.0273480117,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.59074306,
+        "your_amount": 0.059074306
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T21:58:41.256159",
+      "reason": "Trade execution failed",
+      "master_amount": 0.878111122,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "GWG68X7YztLGxVKrdebGnanRorF8VuLJHKVsuvckpump",
+        "amount_in": 0.0878111122,
+        "amount_out": 1265681.2151759863,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.878111122,
+        "your_amount": 0.0878111122
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:00:25.141755",
+      "reason": "Trade execution failed",
+      "master_amount": 0.861012252,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "GWG68X7YztLGxVKrdebGnanRorF8VuLJHKVsuvckpump",
+        "amount_in": 0.0861012252,
+        "amount_out": 1301220.4909619987,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.861012252,
+        "your_amount": 0.0861012252
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:01:21.876368",
+      "reason": "Trade execution failed",
+      "master_amount": 0.343510766,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "B9U3s3o47DhxNYfiNB9mdb1vfsuco1zvYV9xr4hFpump",
+        "amount_in": 0.0343510766,
+        "amount_out": 3258865.788430989,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.343510766,
+        "your_amount": 0.0343510766
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:02:54.892623",
+      "reason": "Trade execution failed",
+      "master_amount": 0.76071946,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "GWG68X7YztLGxVKrdebGnanRorF8VuLJHKVsuvckpump",
+        "amount_in": 0.076071946,
+        "amount_out": 1449065.8132780194,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.76071946,
+        "your_amount": 0.076071946
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:06:24.377586",
+      "reason": "Trade execution failed",
+      "master_amount": 0.781343871,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "GWG68X7YztLGxVKrdebGnanRorF8VuLJHKVsuvckpump",
+        "amount_in": 0.07813438710000001,
+        "amount_out": 1437785.329129994,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.781343871,
+        "your_amount": 0.07813438710000001
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:08:00.613807",
+      "reason": "Trade execution failed",
+      "master_amount": 0.449060737,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "8tJCcvR5LvCq4T8thNPh5YAFbhRNDxqSnCi8hw76pump",
+        "amount_in": 0.0449060737,
+        "amount_out": 2494993.870796025,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.449060737,
+        "your_amount": 0.0449060737
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:11:54.947419",
+      "reason": "Trade execution failed",
+      "master_amount": 0.482587535,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "X8T8fW9nZa6hG9ou5kBABJg7zitQy88Yj2iVqjPpump",
+        "amount_in": 0.0482587535,
+        "amount_out": 2392973.804132998,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.482587535,
+        "your_amount": 0.0482587535
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:21:09.158791",
+      "reason": "Trade execution failed",
+      "master_amount": 0.932962078,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "GWG68X7YztLGxVKrdebGnanRorF8VuLJHKVsuvckpump",
+        "amount_in": 0.0932962078,
+        "amount_out": 1213320.4785229862,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.932962078,
+        "your_amount": 0.0932962078
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:24:46.058972",
+      "reason": "Trade execution failed",
+      "master_amount": 0.422620829,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "EaX1w1JrWbc6utxA7oyMec9Rcwkuwvwic2oZZWFapump",
+        "amount_in": 0.0422620829,
+        "amount_out": 2594401.983153999,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.422620829,
+        "your_amount": 0.0422620829
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:26:46.142419",
+      "reason": "Trade execution failed",
+      "master_amount": 0.878508422,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "GWG68X7YztLGxVKrdebGnanRorF8VuLJHKVsuvckpump",
+        "amount_in": 0.0878508422,
+        "amount_out": 1295824.5192709863,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.878508422,
+        "your_amount": 0.0878508422
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:31:04.702672",
+      "reason": "Trade execution failed",
+      "master_amount": 0.444557121,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "2SwYWbb7VJo3uMmE1KFPLnqVyLf9j9mSJKmTK7RSpump",
+        "amount_in": 0.0444557121,
+        "amount_out": 2460080.4768229723,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.444557121,
+        "your_amount": 0.0444557121
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:38:38.881660",
+      "reason": "Trade execution failed",
+      "master_amount": 1.421293045,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "9YdvrMsW3qsfa2sRUEgsdMtC4wswGHNbDNWFg4wrpump",
+        "amount_in": 0.14212930450000003,
+        "amount_out": 904290.5349479914,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 1.421293045,
+        "your_amount": 0.14212930450000003
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:40:08.966127",
+      "reason": "Trade execution failed",
+      "master_amount": 0.84273512,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "GWG68X7YztLGxVKrdebGnanRorF8VuLJHKVsuvckpump",
+        "amount_in": 0.084273512,
+        "amount_out": 1351293.292858988,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.84273512,
+        "your_amount": 0.084273512
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:50:15.883947",
+      "reason": "Trade execution failed",
+      "master_amount": 0.600603734,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "7vekytC8o6xgjgKic52GbFpneNWFrCHYaurco8owpump",
+        "amount_in": 0.060060373400000006,
+        "amount_out": 1981775.927184999,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.600603734,
+        "your_amount": 0.060060373400000006
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:55:11.877365",
+      "reason": "Trade execution failed",
+      "master_amount": 0.361560545,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "8tJCcvR5LvCq4T8thNPh5YAFbhRNDxqSnCi8hw76pump",
+        "amount_in": 0.0361560545,
+        "amount_out": 3103982.8828319907,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.361560545,
+        "your_amount": 0.0361560545
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:58:50.519668",
+      "reason": "Trade execution failed",
+      "master_amount": 1.118945745,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "4wVtRm2CExz1CN3jp8ujNNhiCSKMVerdYPTXTby4pump",
+        "amount_in": 0.11189457450000001,
+        "amount_out": 1088683.5915970206,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 1.118945745,
+        "your_amount": 0.11189457450000001
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T22:59:38.877560",
+      "reason": "Trade execution failed",
+      "master_amount": 0.666958234,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "5pkfNhaxir9XQmieE385BodBU3htnRQnjqdvTKqKgRL7",
+        "amount_in": 0.0666958234,
+        "amount_out": 1612255.865771979,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.666958234,
+        "your_amount": 0.0666958234
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T23:01:39.484185",
+      "reason": "Trade execution failed",
+      "master_amount": 0.970712355,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "VZRHTQcxN8oRFrgkVd3L6Rv6D87muSiLhg6mvV5pump",
+        "amount_in": 0.0970712355,
+        "amount_out": 1214600.3996030092,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.970712355,
+        "your_amount": 0.0970712355
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T23:03:28.739001",
+      "reason": "Trade execution failed",
+      "master_amount": 0.516999767,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "4vB2PTyXauavhfrPUSuxPtrbXHjnsAGmk7DYoMkbpump",
+        "amount_in": 0.05169997670000001,
+        "amount_out": 2232090.1857159734,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.516999767,
+        "your_amount": 0.05169997670000001
+      },
+      "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T23:05:41.815527",
+      "reason": "Trade execution failed",
+      "master_amount": 0.552758072,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "2SwYWbb7VJo3uMmE1KFPLnqVyLf9j9mSJKmTK7RSpump",
+        "amount_in": 0.055275807200000006,
+        "amount_out": 1972484.4752389789,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.552758072,
+        "your_amount": 0.055275807200000006
+      },
+      "status": "failed"
+    }
+  ],
+  "latency_history": []
+}
