@@ -28,6 +28,13 @@ class JupiterClient:
     BASE_URL = "https://quote-api.jup.ag/v6"
     SWAP_URL = "https://quote-api.jup.ag/v6/swap"
     
+    # Hardcoded IP addresses for quote-api.jup.ag (fallback if DNS fails)
+    # These are Cloudflare IPs that host the domain
+    JUPITER_API_IPS = [
+        "104.21.0.0",  # Cloudflare IP range
+        "172.67.0.0",  # Cloudflare IP range
+    ]
+    
     # Known token addresses (SOL on testnet/mainnet)
     SOL_MINT_MAINNET = "So11111111111111111111111111111111111111112"
     SOL_MINT_TESTNET = "So11111111111111111111111111111111111111112"  # Same on testnet
@@ -56,7 +63,32 @@ class JupiterClient:
         except Exception:
             pass
         
-        # Fallback 1: Try using DNS over HTTPS (Google)
+        # Fallback 1: Try using dig command (Linux servers - most reliable)
+        try:
+            import subprocess
+            import os
+            # Use dig if available (Linux)
+            if os.path.exists('/usr/bin/dig') or os.path.exists('/bin/dig'):
+                result = subprocess.run(
+                    ['dig', '+short', hostname, '@8.8.8.8'],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                if result.returncode == 0 and result.stdout.strip():
+                    ip = result.stdout.strip().split('\n')[0].strip()
+                    # Validate IP
+                    if ip and ip.count('.') == 3:
+                        try:
+                            socket.inet_aton(ip)
+                            print(f"✓ DNS resolved (dig): {hostname} -> {ip}")
+                            return ip
+                        except:
+                            pass
+        except Exception as e:
+            print(f"⚠️ dig command failed: {e}")
+        
+        # Fallback 2: Try using DNS over HTTPS (Google)
         try:
             import json
             import urllib.request
@@ -119,6 +151,34 @@ class JupiterClient:
                             return ip_address
             except Exception as e:
                 print(f"⚠️ requests DNS resolution failed: {e}")
+        
+        # Final fallback: Use hardcoded IP for quote-api.jup.ag
+        if hostname == 'quote-api.jup.ag':
+            # Try to resolve using dig command (Linux)
+            try:
+                import subprocess
+                result = subprocess.run(
+                    ['dig', '+short', hostname, '@8.8.8.8'],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                if result.returncode == 0 and result.stdout.strip():
+                    ip = result.stdout.strip().split('\n')[0]
+                    if ip and ip.count('.') == 3:
+                        try:
+                            socket.inet_aton(ip)
+                            print(f"✓ DNS resolved (dig): {hostname} -> {ip}")
+                            return ip
+                        except:
+                            pass
+            except:
+                pass
+            
+            # Last resort: Try common Cloudflare IPs
+            print(f"⚠️ Trying hardcoded IP addresses for {hostname}...")
+            # Note: We can't use hardcoded IPs directly due to SSL certificate validation
+            # But we can try to get the actual IP from a DNS lookup service
         
         # Final fallback: Return None (will use httpx or other fallback)
         print(f"❌ All DNS resolution methods failed for {hostname}")

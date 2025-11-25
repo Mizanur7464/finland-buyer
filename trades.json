@@ -529,6 +529,22 @@
         "your_amount": 0.055275807200000006
       },
       "status": "failed"
+    },
+    {
+      "timestamp": "2025-11-25T23:35:54.361574",
+      "reason": "Trade execution failed",
+      "master_amount": 0.787005061,
+      "trade_info": {
+        "token_in": "So11111111111111111111111111111111111111112",
+        "token_out": "5pkfNhaxir9XQmieE385BodBU3htnRQnjqdvTKqKgRL7",
+        "amount_in": 0.07870050610000001,
+        "amount_out": 1396769.5131500065,
+        "is_buy": true,
+        "dex": "jupiter",
+        "master_amount": 0.787005061,
+        "your_amount": 0.07870050610000001
+      },
+      "status": "failed"
     }
   ],
   "latency_history": []
