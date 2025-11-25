@@ -68,25 +68,40 @@ class JupiterClient:
             import subprocess
             import os
             # Use dig if available (Linux)
-            if os.path.exists('/usr/bin/dig') or os.path.exists('/bin/dig'):
+            dig_paths = ['/usr/bin/dig', '/bin/dig', 'dig']  # Try multiple paths
+            dig_cmd = None
+            for path in dig_paths:
+                if path == 'dig' or os.path.exists(path):
+                    dig_cmd = path
+                    break
+            
+            if dig_cmd:
                 result = subprocess.run(
-                    ['dig', '+short', hostname, '@8.8.8.8'],
+                    [dig_cmd, '+short', hostname, '@8.8.8.8'],
                     capture_output=True,
                     text=True,
-                    timeout=5
+                    timeout=10
                 )
                 if result.returncode == 0 and result.stdout.strip():
-                    ip = result.stdout.strip().split('\n')[0].strip()
-                    # Validate IP
-                    if ip and ip.count('.') == 3:
-                        try:
-                            socket.inet_aton(ip)
-                            print(f"✓ DNS resolved (dig): {hostname} -> {ip}")
-                            return ip
-                        except:
-                            pass
+                    lines = result.stdout.strip().split('\n')
+                    for line in lines:
+                        ip = line.strip()
+                        # Validate IP (must be IPv4)
+                        if ip and ip.count('.') == 3 and not ip.startswith(';'):
+                            try:
+                                socket.inet_aton(ip)
+                                print(f"✓ DNS resolved (dig): {hostname} -> {ip}")
+                                return ip
+                            except:
+                                continue
+                else:
+                    print(f"⚠️ dig returned: returncode={result.returncode}, stdout={result.stdout[:100]}, stderr={result.stderr[:100]}")
+        except FileNotFoundError:
+            print(f"⚠️ dig command not found")
         except Exception as e:
             print(f"⚠️ dig command failed: {e}")
+            import traceback
+            traceback.print_exc()
         
         # Fallback 2: Try using DNS over HTTPS (Google)
         try:
@@ -152,64 +167,63 @@ class JupiterClient:
             except Exception as e:
                 print(f"⚠️ requests DNS resolution failed: {e}")
         
-        # Final fallback: Use hardcoded IP for quote-api.jup.ag
-        if hostname == 'quote-api.jup.ag':
-            # Try to resolve using dig command (Linux)
-            try:
-                import subprocess
-                result = subprocess.run(
-                    ['dig', '+short', hostname, '@8.8.8.8'],
-                    capture_output=True,
-                    text=True,
-                    timeout=5
-                )
-                if result.returncode == 0 and result.stdout.strip():
-                    ip = result.stdout.strip().split('\n')[0]
-                    if ip and ip.count('.') == 3:
-                        try:
-                            socket.inet_aton(ip)
-                            print(f"✓ DNS resolved (dig): {hostname} -> {ip}")
-                            return ip
-                        except:
-                            pass
-            except:
-                pass
-            
-            # Last resort: Try common Cloudflare IPs
-            print(f"⚠️ Trying hardcoded IP addresses for {hostname}...")
-            # Note: We can't use hardcoded IPs directly due to SSL certificate validation
-            # But we can try to get the actual IP from a DNS lookup service
-        
-        # Final fallback: Return None (will use httpx or other fallback)
-        print(f"❌ All DNS resolution methods failed for {hostname}")
-        
-        # Fallback 2: Use nslookup with type A explicitly
+        # Fallback 4: Try host command (Linux - more common than dig)
         try:
             import subprocess
-            # Use nslookup with explicit A record query
+            import os
+            host_paths = ['/usr/bin/host', '/bin/host', 'host']
+            host_cmd = None
+            for path in host_paths:
+                if path == 'host' or os.path.exists(path):
+                    host_cmd = path
+                    break
+            
+            if host_cmd:
+                result = subprocess.run(
+                    [host_cmd, hostname, '8.8.8.8'],
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
+                if result.returncode == 0 and result.stdout.strip():
+                    import re
+                    ip_pattern = r'\b(?:\d{1,3}\.){3}\d{1,3}\b'
+                    ips = re.findall(ip_pattern, result.stdout)
+                    for ip in ips:
+                        if ip != '8.8.8.8' and ip:
+                            try:
+                                socket.inet_aton(ip)
+                                print(f"✓ DNS resolved (host): {hostname} -> {ip}")
+                                return ip
+                            except:
+                                continue
+        except Exception as e:
+            print(f"⚠️ host command failed: {e}")
+        
+        # Fallback 5: Try getent (Linux - uses /etc/hosts and DNS)
+        try:
+            import subprocess
             result = subprocess.run(
-                ['nslookup', '-type=A', hostname, '8.8.8.8'],
+                ['getent', 'hosts', hostname],
                 capture_output=True,
                 text=True,
-                timeout=10,
-                shell=True
+                timeout=5
             )
-            if result.returncode == 0:
-                # Parse IP from nslookup output using regex
-                import re
-                ip_pattern = r'\b(?:\d{1,3}\.){3}\d{1,3}\b'
-                all_ips = re.findall(ip_pattern, result.stdout)
-                for ip in all_ips:
-                    if ip != '8.8.8.8' and ip:
-                        try:
-                            socket.inet_aton(ip)
-                            print(f"✓ DNS resolved (nslookup): {hostname} -> {ip}")
-                            return ip
-                        except:
-                            continue
+            if result.returncode == 0 and result.stdout.strip():
+                ip = result.stdout.strip().split()[0]
+                if ip and ip.count('.') == 3:
+                    try:
+                        socket.inet_aton(ip)
+                        print(f"✓ DNS resolved (getent): {hostname} -> {ip}")
+                        return ip
+                    except:
+                        pass
         except Exception as e:
-            print(f"⚠️ nslookup DNS resolution failed: {e}")
+            print(f"⚠️ getent command failed: {e}")
         
+        # Final fallback: Return None
+        print(f"❌ All DNS resolution methods failed for {hostname}")
+        print(f"   Tried: socket.getaddrinfo, dig, Google DoH, Cloudflare DoH, requests, host, getent")
         return None
     
     async def _get_quote_with_requests(self, url: str, params: Dict) -> Optional[Dict]:
